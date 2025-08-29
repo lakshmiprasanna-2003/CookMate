@@ -1,12 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 const Home = () => {
   const [data, setData] = useState({ text: "", prompt: "" });
   const [generated, setGenerated] = useState(""); // Gemini output
-  const [email, setEmail] = useState(""); // receiver email
+
+  // refs for textareas
+  const textRef = useRef(null);
+  const promptRef = useRef(null);
 
   const changeHandler = (e) => {
-    setData({ ...data, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setData({ ...data, [name]: value });
+
+    // auto-resize
+    if (e.target.scrollHeight > e.target.clientHeight) {
+      e.target.style.height = "auto"; 
+      e.target.style.height = e.target.scrollHeight + "px"; 
+    }
   };
 
   const submitHandler = (e) => {
@@ -20,9 +30,6 @@ const Home = () => {
       body: JSON.stringify({
         text: data.text,
         prompt: data.prompt,
-        to: email, // dynamic receiver
-        subject: "Generated Text from Note Genie",
-        mailText: generated || "Your generated text will appear here",
       }),
     })
       .then((res) => res.json())
@@ -35,65 +42,39 @@ const Home = () => {
         }
       })
       .catch((err) => console.log("Error:", err));
-      
-  };
-
-  // New function: send email with generated text
-  const sendMailHandler = () => {
-    if (!email) {
-      alert("Please enter recipient email");
-      return;
-    }
-    fetch("http://localhost:5000/sendMail", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: email,
-        subject: "Generated Text from Note Genie",
-        text: generated,
-      }),
-    })
-      .then((res) => res.json())
-      .then((resData) => {
-        alert(resData.message || "Email sent successfully!");
-      })
-      .catch((err) => console.log("Error:", err));
   };
 
   return (
     <div>
       <center>
-        <h1>NOTE GENIE</h1>
+        <h1 className="m-4">CookMate</h1>
         <form onSubmit={submitHandler}>
           <div className="container">
             <div className="col-md-8 card shadow-lg p-4 rounded-3">
-              <label className="text-start">Enter the Text: </label>
-              <input
-                type="text"
+              <label className="text-start">Enter the Ingredients: </label>
+              <textarea
                 name="text"
-                
-                className="mb-3 form-control "
+                ref={textRef}
+                value={data.text}
+                className="mb-3 form-control"
+                rows={1}
                 onChange={changeHandler}
+                style={{ overflow: "hidden", resize: "none" }}
               />
               <br />
               <label className="text-start">Enter the Prompt: </label>
-              <input
-                type="text"
+              <textarea
                 name="prompt"
+                ref={promptRef}
+                value={data.prompt}
                 className="mb-4 form-control"
+                rows={1}
                 onChange={changeHandler}
-              />
-              <br />
-              <label className="text-start">Recipient Email: </label>
-              <input
-                type="email"
-                className="mb-4 form-control"
-                placeholder="Enter receiver email"
-                onChange={(e) => setEmail(e.target.value)}
+                style={{ overflow: "hidden", resize: "none" }}
               />
               <br />
               <button className="btn btn-primary rounded-3">
-                Generate the text
+                Generate the recipe
               </button>
             </div>
           </div>
@@ -101,17 +82,35 @@ const Home = () => {
 
         {/* Show Gemini generated text */}
         {generated && (
-          <div className="mt-4 card p-3 shadow">
-            <h3>Generated Text:</h3>
-            <p>{generated}</p>
-            <button
-              className="btn btn-success mt-3"
-              onClick={sendMailHandler}
-            >
-              Send via Email
-            </button>
-          </div>
-        )}
+        <div className="mt-4 card p-4 shadow-lg text-start rounded-3">
+          <h3 className="mb-3 text-primary">🍴 Recipe Suggestion</h3>
+          {generated.split("\n").map((line, index) => {
+            if (line.startsWith("**") && line.endsWith("**")) {
+              return (
+                <h4 key={index} className="fw-bold text-success mt-3">
+                  {line.replace(/\*\*/g, "")}
+                </h4>
+              );
+            }
+
+            if (line.includes(":")) {
+              const [key, value] = line.split(":");
+              return (
+                <p key={index}>
+                  <strong className="text-secondary">{key}:</strong> {value}
+                </p>
+              );
+            }
+
+            return (
+              <p key={index} className="mb-2">
+                {line}
+              </p>
+            );
+          })}
+        </div>
+      )}
+
       </center>
     </div>
   );

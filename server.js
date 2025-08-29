@@ -2,9 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const note = require("./model");
 const cors = require("cors");
-const multer = require("multer");
 const dotenv = require("dotenv");
-const { Resend } = require("resend");
+
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 dotenv.config();
@@ -54,30 +53,6 @@ app.post("/add", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// ---------------- Send Mail with Resend ----------------
-
-const resend = new Resend(process.env.RESEND_API);
-console.log("Loaded RESEND_API:", process.env.RESEND_API ? "OK" : "MISSING");
-
-app.post("/sendMail", async (req, res) => {
-  const { to, subject, text } = req.body;
-  try {
-
-    const info = await resend.emails.send({
-      from: "onboarding@resend.dev", // must be verified sender in Resend dashboard
-      to,
-      subject,
-      text,
-    });
-
-    res.json({ success: true, message: "Mail Sent Successfully", info });
-  } catch (error) {
-    console.error("Email didn't send: ", error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
 
 
 app.listen(5000, () => {
