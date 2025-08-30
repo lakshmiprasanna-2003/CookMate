@@ -1,12 +1,13 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useContext } from "react";
+import { Navigate } from 'react-router-dom';
+import { store } from './App';
 
 const Home = () => {
   const [data, setData] = useState({ text: "", prompt: "" });
   const [generated, setGenerated] = useState(""); // Gemini output
-
+  const [token, setToken] = useContext(store);
   // refs for textareas
   const textRef = useRef(null);
-  const promptRef = useRef(null);
 
   const changeHandler = (e) => {
     const { name, value } = e.target;
@@ -14,8 +15,8 @@ const Home = () => {
 
     // auto-resize
     if (e.target.scrollHeight > e.target.clientHeight) {
-      e.target.style.height = "auto"; 
-      e.target.style.height = e.target.scrollHeight + "px"; 
+      e.target.style.height = "auto";
+      e.target.style.height = e.target.scrollHeight + "px";
     }
   };
 
@@ -43,74 +44,78 @@ const Home = () => {
       })
       .catch((err) => console.log("Error:", err));
   };
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
 
   return (
-    <div>
+    <div className="p-5">
       <center>
-        <h1 className="m-4">CookMate</h1>
+        <h1><b>🍳 What's cooking <span style={{ color: "#ff5601" }}>today?</span></b></h1>
+        <p>
+          Tell me what ingredients you have, and I’ll help you create something amazing. <br />
+          Perfect for busy professionals who want great meals without the hassle.
+        </p>
         <form onSubmit={submitHandler}>
           <div className="container">
-            <div className="col-md-8 card shadow-lg p-4 rounded-3">
-              <label className="text-start">Enter the Ingredients: </label>
+            <div className="col-md-6 p-2 rounded-3">
+              <label className="text-start fw-bold"> </label>
               <textarea
                 name="text"
                 ref={textRef}
                 value={data.text}
-                className="mb-3 form-control"
+                className="mb-3 form-control "
                 rows={1}
+                placeholder="What ingredients do you have? (like Chicken, rice, 20 minutes, mood)"
                 onChange={changeHandler}
-                style={{ overflow: "hidden", resize: "none" }}
+                style={{
+                  overflow: "hidden",
+                  resize: "none",
+                  borderColor: "#ff5601",        // orange border
+                  boxShadow: "none",             // remove Bootstrap’s default glow
+                }}
               />
-              <br />
-              <label className="text-start">Enter the Prompt: </label>
-              <textarea
-                name="prompt"
-                ref={promptRef}
-                value={data.prompt}
-                className="mb-4 form-control"
-                rows={1}
-                onChange={changeHandler}
-                style={{ overflow: "hidden", resize: "none" }}
-              />
-              <br />
-              <button className="btn btn-primary rounded-3">
-                Generate the recipe
+              <button 
+                className="btn rounded-3" 
+                style={{ background: "#ff5601ff", color: "#ffff" }}
+              >
+                <b>Search</b>
               </button>
+
             </div>
           </div>
         </form>
 
         {/* Show Gemini generated text */}
         {generated && (
-        <div className="mt-4 card p-4 shadow-lg text-start rounded-3">
-          <h3 className="mb-3 text-primary">🍴 Recipe Suggestion</h3>
-          {generated.split("\n").map((line, index) => {
-            if (line.startsWith("**") && line.endsWith("**")) {
-              return (
-                <h4 key={index} className="fw-bold text-success mt-3">
-                  {line.replace(/\*\*/g, "")}
-                </h4>
-              );
-            }
+          <div className="mt-4 p-4 text-start rounded-3 bg-white shadow">
+            <h3 className="mb-3 text-center" style={{color:'#fc8144ff'}}><b>🍴 Recipe Suggestion</b></h3>
+            <br />
+            {generated.split("\n").map((line, index) => {
+              if (line.startsWith(" ") && line.endsWith(" ")) {
+                return (
+                  <h4 key={index} className="fw-bold mt-3" style={{color:'#fc8144ff'}}>
+                    {line.replace(/\\/g, "")}
+                  </h4>
+                );
+              }
 
-            if (line.includes(":")) {
-              const [key, value] = line.split(":");
+              if (line.includes(":")) {
+                const [key, value] = line.split(":");
+                return (
+                  <p key={index}>
+                    <strong >{key}:</strong> {value}
+                  </p>
+                );
+              }
               return (
-                <p key={index}>
-                  <strong className="text-secondary">{key}:</strong> {value}
+                <p key={index} className="mb-2">
+                  {line}
                 </p>
               );
-            }
-
-            return (
-              <p key={index} className="mb-2">
-                {line}
-              </p>
-            );
-          })}
-        </div>
-      )}
-
+            })}
+          </div>
+        )}
       </center>
     </div>
   );

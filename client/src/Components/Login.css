@@ -1,0 +1,13 @@
+.custom-form {
+  border: 2px solid #ed9f77;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  width: 40rem;
+  box-shadow: 0 4px 10px rgb(236, 73, 4);
+  
+}
+
+.w-26 {
+  width: 26rem; /* or any width you want */
+}
+
