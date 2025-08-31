@@ -8,8 +8,11 @@ const Navbar = () => {
   return (
     <div style={{ background: "#fc8144ff" }}>
       <nav className="navbar px-4">
-        <span className="navbar-brand mb-0 h1" style={{color:'#fff'}}>
-          <strong>Cook Mate</strong>
+        {/* FIX: Use Link instead of link */}
+        <span className="navbar-brand mb-0 h1" style={{ color: '#fff' }}>
+          <Link to="/home" style={{ textDecoration: "none", color: "#fff" }}>
+            <strong>🍳Cook Mate</strong>
+          </Link>
         </span>
 
         {!token ? (
@@ -18,32 +21,25 @@ const Navbar = () => {
             <Link
               to="/register"
               className="btn me-2"
-              style={{ background: "#ffff", color: "#fc8144ff" }}
+              style={{ background: "#fff", color: "#fc8144ff" }}
             >
               <b>Register</b>
             </Link>
             <Link
               to="/login"
               className="btn"
-              style={{ background: "#ffff", color: "#fc8144ff" }}
+              style={{ background: "#fff", color: "#fc8144ff" }}
             >
               <b>Login</b>
             </Link>
           </div>
         ) : (
-          
           <div className="d-flex">
-            <Link
-              to="/profile"
-              className="btn me-2"
-              style={{ background: "#ffff", color: "#fc8144ff" }}
-            >
-              <b>My Profile</b>
-            </Link>
+            
             <button
               className="btn"
-              style={{ background: "#ffff", color: "#fc8144ff" }}
-              onClick={() => setToken(null)} 
+              style={{ background: "#fff", color: "#fc8144ff" }}
+              onClick={() => setToken(null)}
             >
               <b>Logout</b>
             </button>

@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Home from './Home';
 import Register from './Components/Register';
 import Login from './Components/Login';
-import MyProfile from './Components/MyProfile';
 import Navbar from './Components/Navbar';
 
 export const store = createContext();
@@ -32,7 +31,7 @@ const App = () => {
   }, [token]);
 
   if (loading) {
-    return <h2 style={{ textAlign: 'center', marginTop: '50px' }}>Loading...</h2>;
+    return <h2 style={{ textAlign: 'center', marginTop: '100px', color:'orange' }}>Loading...</h2>;
   }
 
   return (
@@ -44,7 +43,6 @@ const App = () => {
           <Route path="/" element={<Register />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/myprofile" element={<MyProfile />} />
         </Routes>
       </BrowserRouter>
     </store.Provider>
