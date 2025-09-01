@@ -4,7 +4,7 @@ const note = require("./model");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const jwt= require('jsonwebtoken');
-const Registeruser=require('./Auth');
+const Registeruser=require('./backend/Auth');
 const middleware=require('./Middleware')
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
